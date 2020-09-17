@@ -8,9 +8,10 @@ from database.postsqldb.models import neighborhood_fields,neighborhood_area_fiel
 
 
 class NeighborhoodsApi(Resource):
-  @marshal_with(neighborhood_fields)
+  #@marshal_with(neighborhood_fields)
   def get(self):
-    return  NeighborhoodModel.query.all()
+    query = NeighborhoodModel.query.with_entities(NeighborhoodModel.name,NeighborhoodModel.geom.ST_AsText ().label('bufferarea')).all()
+    return ['%s: %s' % (row.name, row.bufferarea) for row in query]
 
 
 

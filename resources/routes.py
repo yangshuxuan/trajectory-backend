@@ -1,7 +1,7 @@
 
 from .car import CarsApi,CarApi
 from .neighborhood import NeighborhoodApi,NeighborhoodsApi,NeighborhoodAreaApi
-
+from .geometries3 import Geometries3sApi
 def initialize_routes(api):
  
  
@@ -11,4 +11,6 @@ def initialize_routes(api):
  api.add_resource(NeighborhoodsApi,'/neighborhoods')
  api.add_resource(NeighborhoodApi,'/neighborhoods/<string:name>')
  api.add_resource(NeighborhoodAreaApi, '/neighborhoods/area/<string:name>')
+
+ api.add_resource(Geometries3sApi,'/geometries3s')
 

@@ -1,4 +1,6 @@
 /.deployment
 /.vscode
 /__pycache__
-/database/postsqldb/__pycache__
+/database/postsqldb/__pycache__/*
+./database/postsqldb/__pycache__/*
+resources/__pycache__/*

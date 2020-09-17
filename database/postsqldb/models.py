@@ -40,3 +40,10 @@ class NeighborhoodModel(db.Model):
     boroname = db.Column(db.String(43))
     name = db.Column(db.String(64))
     geom = db.Column(Geometry(geometry_type='POINT', srid=26918))
+
+
+class Geometries3Model(db.Model):
+    __bind_key__ = 'nyc'
+    __tablename__ = 'geometries3'
+    name = db.Column(db.String(64),primary_key=True)
+    geom = db.Column(Geometry(geometry_type='LINESTRINGM', srid=4326))
