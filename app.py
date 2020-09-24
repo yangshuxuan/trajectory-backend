@@ -18,11 +18,11 @@ app.config['MONGODB_SETTINGS'] = {
     'host': 'mongodb://localhost/movie-bag'
 }
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:123456@localhost:5432/wordcount_dev"
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:123456@localhost:5432/nyc"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("nyc","postgresql://postgres:123456@localhost:5432/nyc")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-print(os.environ.get("nyc","postgresql://postgres:123456@localhost:5432/nyc"))
+
 
 app.config['SQLALCHEMY_BINDS'] = {
     'nyc':        os.environ.get("nyc","postgresql://postgres:123456@localhost:5432/nyc")

@@ -37,6 +37,7 @@ class LastappearedsModelApi(Resource):
     body = request.get_json()
     lastappearedPoint = LastappearedModel(**body)
     db.session.add(lastappearedPoint)
+    db.session.commit()
     return {'object_id': lastappearedPoint.object_id}, 200
 
 
