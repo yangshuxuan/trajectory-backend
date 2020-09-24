@@ -4,3 +4,7 @@
 /database/postsqldb/__pycache__/*
 ./database/postsqldb/__pycache__/*
 resources/__pycache__/*
+database/postsqldb/__pycache__/db.cpython-38.pyc
+database/postsqldb/__pycache__/models.cpython-38.pyc
+resources/__pycache__/neighborhood.cpython-38.pyc
+resources/__pycache__/routes.cpython-38.pyc
