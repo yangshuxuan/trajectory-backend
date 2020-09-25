@@ -14,8 +14,8 @@ class ObjectTrajactoryApi(Resource):
     objectTrajactory = ObjectTrajactoryModel.query.filter_by(object_id=id).first()
     if objectTrajactory is None:
       body["object_id"] = id
-      if len(body["gps_line"]) is 1:
-          body["gps_line"] *= 2
+      if len(body["gps_points"]) == 1:
+          body["gps_points"] *= 2
       objectTrajactory = ObjectTrajactoryModel(**body)
       db.session.add(objectTrajactory)
     else:
