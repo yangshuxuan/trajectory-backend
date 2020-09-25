@@ -82,3 +82,36 @@ class LastappearedModel(db.Model):
     def dictRepr(self):
         return {"object_id":self.object_id,"lastmodified_time":self.lastmodified_time.strftime("%Y-%m-%d %H:%M:%S"),"long":self.long(),"lat":self.lat()}
 
+class ObjectTrajactoryModel(db.Model):
+    __tablename__ = 'objecttrajactory'
+    object_id = db.Column(db.String(50),primary_key=True)
+    gps_line = db.Column(Geometry(geometry_type='LINESTRINGM', srid=4326))
+    #p = ObjectTrajactoryModel(object_id='Ortab', gps_line='SRID=4326;LINESTRINGM(0 0 20, 1 1 21, 2 1 22, 2 2 23)')
+    def __init__(self,**kwargs):
+        if "gps_points" in kwargs.keys() and "gps_line" not in kwargs.keys():
+            #timestamp = datetime.timestamp(now)
+            kwargs["gps_line"] = 'SRID=4326;LINESTRINGM({})'.format(",".join(["{} {} {}".format(
+                p["long"],p["lat"],datetime.timestamp(datetime.strptime(p["occurtime"], "%Y-%m-%d %H:%M:%S"))
+                ) for p in kwargs["gps_points"]]))
+            del kwargs["gps_points"]
+
+
+        super(ObjectTrajactoryModel, self).__init__(**kwargs)
+    def gps_points(self):
+        gps_points = []
+        for i in range(1,db.session.scalar(self.gps_line.ST_NPoints()) + 1):
+            gps_point = {}
+            gps_point["occurtime"] =  datetime.fromtimestamp(db.session.scalar(self.gps_line.ST_PointN(i).ST_M())).strftime("%Y-%m-%d %H:%M:%S")
+            gps_point["long"] =  db.session.scalar(self.gps_line.ST_PointN(i).ST_X())
+            gps_point["lat"] =  db.session.scalar(self.gps_line.ST_PointN(i).ST_Y())
+            gps_points.append(gps_point)
+        return gps_points
+
+    def update(self,body):
+        
+        for p in body["gps_points"]:
+            toAddPoint ='POINTM({} {} {})'.format(p["long"],p["lat"],datetime.timestamp(datetime.strptime(p["occurtime"], "%Y-%m-%d %H:%M:%S")))
+            self.gps_line = db.session.scalar(self.gps_line.ST_AddPoint(toAddPoint))
+        
+    def dictRepr(self):
+        return {"object_id":self.object_id,"gps_points":self.gps_points()}

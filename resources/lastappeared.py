@@ -7,7 +7,7 @@ from flask_restful import Resource,  marshal_with
 from database.postsqldb.models import neighborhood_fields,neighborhood_area_fields
 
 
-class LastappearedModelApi(Resource):
+class LastappearedApi(Resource):
   def put(self, id):
     body = request.get_json()
 
@@ -28,7 +28,7 @@ class LastappearedModelApi(Resource):
 
 
 
-class LastappearedsModelApi(Resource):
+class LastappearedsApi(Resource):
   
   def get(self):
     return  [row.dictRepr() for row in LastappearedModel.query.all()]
