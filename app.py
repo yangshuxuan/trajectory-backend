@@ -11,8 +11,9 @@ from flask_restful import Api
 from geoalchemy2.elements import WKTElement
 from resources.routes import initialize_routes
 import os
-
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 app.config['MONGODB_SETTINGS'] = {
     'host': 'mongodb://localhost/movie-bag'

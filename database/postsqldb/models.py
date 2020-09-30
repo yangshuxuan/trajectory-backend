@@ -115,3 +115,24 @@ class ObjectTrajactoryModel(db.Model):
         
     def dictRepr(self):
         return {"object_id":self.object_id,"gps_points":self.gps_points()}
+
+
+
+
+class AirLineModel(db.Model):
+    __tablename__ = 'airline'
+
+    id = db.Column(db.Integer, primary_key=True)
+    airlinecode = db.Column(db.String(80), unique=True, nullable=False) #air line number
+    airlinegps = db.Column(Geometry(geometry_type='LINESTRING', srid=4326),nullable=False)
+
+
+class ObjectUseAirlineModel(db.Model):
+    __tablename__ = 'object_use_airline'
+    id = db.Column(db.Integer, primary_key=True)
+    object_id = db.Column(db.String(50),nullable=False)
+    flight_task_number = db.Column(db.String(50),nullable=False)
+    pub_date = db.Column(db.DateTime, nullable=False,default=datetime.utcnow)
+
+    airline_id = db.Column(db.Integer, db.ForeignKey('airline.id'),
+        nullable=False)
