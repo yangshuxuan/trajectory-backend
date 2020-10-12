@@ -143,3 +143,9 @@ class MachineTypeModel(db.Model):
 
     object_id = db.Column(db.String(50),db.ForeignKey('lastappeared.object_id'),primary_key=True)
     machinetype = db.Column(db.String())
+
+
+class ExceptionTypeModel(db.Model):
+    __tablename__ = 'exceptiontype'
+    object_id = db.Column(db.String(50),db.ForeignKey('lastappeared.object_id'),primary_key=True)
+    exceptiontype = db.Column(db.String())

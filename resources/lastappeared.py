@@ -1,5 +1,5 @@
 from flask import request
-from database.postsqldb.models import LastappearedModel,MachineTypeModel
+from database.postsqldb.models import LastappearedModel,MachineTypeModel,ExceptionTypeModel
 from datetime import datetime
 from database.postsqldb.db import db
 
@@ -34,16 +34,19 @@ class LastappearedsApi(Resource):
     parser = reqparse.RequestParser()
 
     parser.add_argument('machinetype')
+    parser.add_argument('exceptiontype')
     args = parser.parse_args()
-    print(args['machinetype'])
+
     machinetype = args['machinetype']
+
+    exceptiontype = args['exceptiontype']
+
     if machinetype is not None:
       rows = LastappearedModel.query.join(MachineTypeModel, LastappearedModel.object_id==MachineTypeModel.object_id).filter(MachineTypeModel.machinetype.in_ (machinetype.split(",")) ).all()
-    else:
+    elif exceptiontype is not None:
+      rows = LastappearedModel.query.join(ExceptionTypeModel, LastappearedModel.object_id==ExceptionTypeModel.object_id).filter(ExceptionTypeModel.exceptiontype.in_ (exceptiontype.split(",")) ).all()
+    else :
       rows = LastappearedModel.query.all()
-
-
-
 
     return  [row.dictRepr() for row in rows]
 
