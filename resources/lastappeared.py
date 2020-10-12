@@ -1,11 +1,11 @@
 from flask import request
-from database.postsqldb.models import LastappearedModel
+from database.postsqldb.models import LastappearedModel,MachineTypeModel
 from datetime import datetime
 from database.postsqldb.db import db
 
 from flask_restful import Resource,  marshal_with
 from database.postsqldb.models import neighborhood_fields,neighborhood_area_fields
-
+from flask_restful import reqparse
 
 class LastappearedApi(Resource):
   def put(self, id):
@@ -31,7 +31,21 @@ class LastappearedApi(Resource):
 class LastappearedsApi(Resource):
   
   def get(self):
-    return  [row.dictRepr() for row in LastappearedModel.query.all()]
+    parser = reqparse.RequestParser()
+
+    parser.add_argument('machinetype')
+    args = parser.parse_args()
+    print(args['machinetype'])
+    machinetype = args['machinetype']
+    if machinetype is not None:
+      rows = LastappearedModel.query.join(MachineTypeModel, LastappearedModel.object_id==MachineTypeModel.object_id).filter(MachineTypeModel.machinetype.in_ (machinetype.split(",")) ).all()
+    else:
+      rows = LastappearedModel.query.all()
+
+
+
+
+    return  [row.dictRepr() for row in rows]
 
   def post(self):
     body = request.get_json()

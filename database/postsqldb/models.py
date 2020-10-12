@@ -136,3 +136,10 @@ class ObjectUseAirlineModel(db.Model):
 
     airline_id = db.Column(db.Integer, db.ForeignKey('airline.id'),
         nullable=False)
+
+
+class MachineTypeModel(db.Model):
+    __tablename__ = 'machinetype'
+
+    object_id = db.Column(db.String(50),db.ForeignKey('lastappeared.object_id'),primary_key=True)
+    machinetype = db.Column(db.String())
