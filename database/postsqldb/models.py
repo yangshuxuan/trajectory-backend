@@ -3,7 +3,8 @@ from datetime import datetime
 from geoalchemy2.types import Geometry
 from flask_restful import fields
 from geoalchemy2.elements import WKTElement
-
+from statsmodels.tsa.statespace.varmax import VARMAX
+from random import random
 resource_fields = {
     'id': fields.Integer,
     'name': fields.String,
@@ -115,6 +116,22 @@ class ObjectTrajactoryModel(db.Model):
             gps_point["lat"] =  db.session.scalar(self.gps_line.ST_PointN(i).ST_Y())
             gps_points.append(gps_point)
         return gps_points
+    def precictTrajectory(self):
+        predict_num = 5
+        gps_points = self.gps_points()
+        # data = [[p["long"],p["lat"]] for p in gps_points]
+        data = list()
+        for i in range(100):
+            v1 = random()
+            v2 = v1 + random()
+            row = [v1, v2]
+            data.append(row)
+        model = VARMAX(data, order=(1, 1))
+        model_fit = model.fit(disp=False)
+
+        yhat = model_fit.forecast(predict_num)
+        return {"object_id":self.object_id,"gps_points": [{"long":p[0],"lat":p[1]} for p in yhat]}
+        
 
     def update(self,body):
         

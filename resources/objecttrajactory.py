@@ -28,7 +28,13 @@ class ObjectTrajactoryApi(Resource):
     objectTrajactory = ObjectTrajactoryModel.query.filter_by(object_id=id).first()
     return objectTrajactory.dictRepr(),200
 
+class ObjectTrajactoryPredictorApi(Resource):
+  
 
+  def get(self,id):
+    objectTrajactory = ObjectTrajactoryModel.query.filter_by(object_id=id).first()
+     
+    return {"currenttrajectory":objectTrajactory.dictRepr(),"futruetrajectorys":objectTrajactory.precictTrajectory()},200
 
 class ObjectTrajactorysApi(Resource):
   
