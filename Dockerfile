@@ -1,9 +1,9 @@
-# Dockerfile - this is a comment. Delete me if you want.
-FROM python:3.8.3
-RUN pip install --upgrade pip
-COPY . /app
+FROM python:3.7.2-stretch
+
 WORKDIR /app
-ENV nyc postgresql://postgres:123456@host.docker.internal:5432/nyc
+
+ADD . /app
+
 RUN pip install -r requirements.txt
-ENTRYPOINT ["python"]
-CMD ["app.py"]
+
+CMD python app.py
