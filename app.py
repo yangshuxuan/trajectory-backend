@@ -19,14 +19,23 @@ app.config['MONGODB_SETTINGS'] = {
     'host': 'mongodb://localhost/movie-bag'
 }
 
+# get environment variables
+dbAddr = os.environ.get("DBADDR")
+dbPort = os.environ.get("DBPORT")
+dbUser = os.environ.get("DBUSER")
+dbPass = os.environ.get("DBPASS")
+assert(dbAddr)
+assert(dbPort)
+assert(dbUser)
+assert(dbPass)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("nyc","postgresql://postgres:123456@localhost:5432/nyc")
+dbURL= "postgresql://" + dbUser + ":" + dbPass + "@" + dbAddr + ":" + dbPort + "/nyc"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("nyc", dbURL)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
-
 app.config['SQLALCHEMY_BINDS'] = {
-    'nyc':        os.environ.get("nyc","postgresql://postgres:123456@localhost:5432/nyc")
+    'nyc':        os.environ.get("nyc", dbURL)
 }
 
 postsqldb.db.initialize_db(app)
@@ -55,4 +64,4 @@ def hello_there(name):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=5000)
