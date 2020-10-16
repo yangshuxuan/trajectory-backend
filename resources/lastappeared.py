@@ -26,6 +26,12 @@ class LastappearedApi(Resource):
   def get(self,id):
     lastappearedModel = LastappearedModel.query.filter_by(object_id=id).first()
     return lastappearedModel.dictRepr(),200
+  def delete(self, id):
+        lastappearedModel = LastappearedModel.query.filter_by(object_id=id).first()
+        if lastappearedModel is not None:
+          db.session.delete(lastappearedModel)
+          db.session.commit()
+        return {'object_id': id}
 
 class LastappearedsApi(Resource):
   
@@ -55,6 +61,11 @@ class LastappearedsApi(Resource):
     db.session.add(lastappearedPoint)
     db.session.commit()
     return {'object_id': lastappearedPoint.object_id}, 200
+  def delete(self):
+    LastappearedModel.query.delete()
+    db.session.commit()
+    return "succeed to delete", 200
+  
 
 class LastappearedsFilterApi(Resource):
   

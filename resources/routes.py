@@ -4,6 +4,8 @@ from .neighborhood import NeighborhoodApi,NeighborhoodsApi,NeighborhoodAreaApi
 from .geometries3 import Geometries3sApi
 from .lastappeared import LastappearedApi,LastappearedsApi,LastappearedsFilterApi
 from .objecttrajactory import ObjectTrajactorysApi,ObjectTrajactoryApi,ObjectTrajactoryPredictorApi,SimilarObjectTrajactorysApi
+from .machinetype import MachinetypesApi
+from .exceptiontype import ExceptionTypesApi
 def initialize_routes(api):
  
  
@@ -26,3 +28,9 @@ def initialize_routes(api):
     api.add_resource(LastappearedsFilterApi,'/lastappearedfilter')
 
     api.add_resource(SimilarObjectTrajactorysApi,'/similarobjecttrajactorysapi/<id>')
+
+    api.add_resource(MachinetypesApi,'/machinetype')
+    #api.add_resource(LastappearedApi, '/lastappeared/<id>')
+
+    ExceptionTypesApi
+    api.add_resource(ExceptionTypesApi,'/exceptiontype')

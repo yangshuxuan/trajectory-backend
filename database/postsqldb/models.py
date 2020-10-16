@@ -139,8 +139,11 @@ class ObjectTrajactoryModel(db.Model):
             toAddPoint ='POINTM({} {} {})'.format(p["long"],p["lat"],datetime.timestamp(datetime.strptime(p["occurtime"], "%Y-%m-%d %H:%M:%S")))
             self.gps_line = db.session.scalar(self.gps_line.ST_AddPoint(toAddPoint))
         
-    def dictRepr(self):
-        return {"object_id":self.object_id,"gps_points":self.gps_points()}
+    def dictRepr(self,**kwargs):
+        d = {"object_id":self.object_id,"gps_points":self.gps_points()}
+        if "similar" in kwargs:
+            d["similar"] = kwargs["similar"]
+        return d
 
 
 
@@ -169,9 +172,13 @@ class MachineTypeModel(db.Model):
 
     object_id = db.Column(db.String(50),db.ForeignKey('lastappeared.object_id'),primary_key=True)
     machinetype = db.Column(db.String())
+    def dictRepr(self):
+        return {"object_id":self.object_id,"machinetype":self.machinetype}
 
 
 class ExceptionTypeModel(db.Model):
     __tablename__ = 'exceptiontype'
     object_id = db.Column(db.String(50),db.ForeignKey('lastappeared.object_id'),primary_key=True)
     exceptiontype = db.Column(db.String())
+    def dictRepr(self):
+        return {"object_id":self.object_id,"exceptiontype":self.exceptiontype}
