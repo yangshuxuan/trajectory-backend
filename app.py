@@ -12,6 +12,7 @@ from geoalchemy2.elements import WKTElement
 from resources.routes import initialize_routes
 import os
 from flask_cors import CORS
+from admin import flaskadmin
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
@@ -40,7 +41,10 @@ app.config['SQLALCHEMY_BINDS'] = {
 
 postsqldb.db.initialize_db(app)
 
-#db = SQLAlchemy(app)
+
+
+
+flaskadmin.initialize_admin(app)
 initialize_routes(api)
 @app.route("/")
 def home():

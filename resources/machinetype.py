@@ -48,7 +48,13 @@ class MachinetypesApi(Resource):
     MachineTypeModel.query.delete()
     db.session.commit()
     return "succeed to delete", 200
-  
+class MachinetypeStatisticsApi(Resource):
+  def get(self):
+    rows = MachineTypeModel.query.with_entities(MachineTypeModel.machinetype,func.count(MachineTypeModel.machinetype)).group_by(MachineTypeModel.machinetype).all()
+    return [{"machinetype":machinetype,"count":count} for machinetype,count in rows]
+    #return dict(rows)
+
+ 
   
 
 
