@@ -6,6 +6,8 @@ from .lastappeared import LastappearedApi,LastappearedsApi,LastappearedsFilterAp
 from .objecttrajactory import ObjectTrajactorysApi,ObjectTrajactoryApi,ObjectTrajactoryPredictorApi,SimilarObjectTrajactorysApi
 from .machinetype import MachinetypesApi,MachinetypeStatisticsApi
 from .exceptiontype import ExceptionTypesApi
+from .objecttrajactory import ObjectTrajactorysApi,ObjectTrajactoryApi,ObjectTrajactoryPredictorApi,SimilarObjectTrajactorysApi,ObjectTrajectoryLastNminutesApi
+from .exceptioninfo import ExceptionInfosApi
 def initialize_routes(api):
  
  
@@ -24,7 +26,6 @@ def initialize_routes(api):
     api.add_resource(ObjectTrajactorysApi,'/objecttrajactory')
     api.add_resource(ObjectTrajactoryApi,'/objecttrajactory/<id>')
     api.add_resource(ObjectTrajactoryPredictorApi,'/objecttrajactorypredictor/<id>')
-
     api.add_resource(LastappearedsFilterApi,'/lastappearedfilter')
 
     api.add_resource(SimilarObjectTrajactorysApi,'/similarobjecttrajactorysapi/<id>')
@@ -36,3 +37,5 @@ def initialize_routes(api):
     ExceptionTypesApi
     api.add_resource(ExceptionTypesApi,'/exceptiontype')
     
+    api.add_resource(ObjectTrajectoryLastNminutesApi, '/objecttrajactory/lastnminutes/<int:minutes>')
+    api.add_resource(ExceptionInfosApi, '/exceptioninfo')
