@@ -34,7 +34,7 @@ def initialize_routes(api):
     api.add_resource(MachinetypeStatisticsApi,'/machinetypestatistics')
     #api.add_resource(LastappearedApi, '/lastappeared/<id>')
 
-    ExceptionTypesApi
+ 
     api.add_resource(ExceptionTypesApi,'/exceptiontype')
     
     api.add_resource(ObjectTrajectoryLastNminutesApi, '/objecttrajactory/lastnminutes/<int:minutes>')
