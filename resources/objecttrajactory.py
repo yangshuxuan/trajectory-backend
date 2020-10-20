@@ -1,6 +1,6 @@
 from flask import request
 from database.postsqldb.models import ObjectTrajactoryModel
-from datetime import datetime
+from datetime import datetime, timedelta
 from database.postsqldb.db import db
 from sqlalchemy.sql import select, func
 from flask_restful import Resource,  marshal_with
@@ -51,7 +51,7 @@ class ObjectTrajactorysApi(Resource):
 
 class SimilarObjectTrajactorysApi(Resource):
   from sqlalchemy import desc,asc
-  
+
   def get(self,id):
     parser = reqparse.RequestParser()
 
@@ -62,3 +62,12 @@ class SimilarObjectTrajactorysApi(Resource):
     objectTrajactory = ObjectTrajactoryModel.query.filter_by(object_id=id).first()
     rows = ObjectTrajactoryModel.query.filter(ObjectTrajactoryModel.object_id!=id).order_by(asc(func.ST_HausdorffDistance(ObjectTrajactoryModel.gps_line,func.ST_AsEWKT(objectTrajactory.gps_line)))).limit(similar_num).all()
     return  [row.dictRepr() for row in rows]
+
+class ObjectTrajectoryLastNminutesApi(Resource):
+  def get(self, minutes):
+    t = datetime(2020, 10, 16, 16, 20, 0)
+    # t = datetime.now()
+    requiredTime = (t - timedelta(minutes=minutes))
+    query = ObjectTrajactoryModel.query.filter(
+      ObjectTrajactoryModel.gps_line.ST_EndPoint().ST_M() >= requiredTime.timestamp()).all()
+    return [row.dictRepr() for row in query]
