@@ -14,3 +14,5 @@ resources/__pycache__/neighborhood.cpython-38.pyc
 database/postsqldb/__pycache__/models.cpython-38.pyc
 database/postsqldb/__pycache__/db.cpython-38.pyc
 admin/__pycache__/flaskadmin.cpython-38.pyc
+resources/trajectorypreprocess/__pycache__/filter.cpython-38.pyc
+database/postsqldb/trajectorypreprocess/__pycache__/trajectoryfiltermodel.cpython-38.pyc

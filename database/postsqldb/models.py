@@ -5,6 +5,7 @@ from flask_restful import fields
 from geoalchemy2.elements import WKTElement
 from statsmodels.tsa.statespace.varmax import VARMAX
 from random import random
+from sqlalchemy.ext.declarative import declared_attr
 resource_fields = {
     'id': fields.Integer,
     'name': fields.String,
@@ -116,12 +117,12 @@ class LastappearedModel(db.Model):
 
         return info 
 
-class ObjectTrajactoryModel(db.Model):
-    __tablename__ = 'objecttrajactory'
-    lastappeared_id = db.Column(db.Integer,db.ForeignKey('lastappeared.id',ondelete="CASCADE"),primary_key=True)
-    gps_line = db.Column(Geometry(geometry_type='LINESTRINGM', srid=4326))
- 
 
+class TrajectoryMixin:
+    @declared_attr
+    def lastappeared_id(cls):
+        return db.Column(db.Integer,db.ForeignKey('lastappeared.id',ondelete="CASCADE"),primary_key=True)
+    gps_line = db.Column(Geometry(geometry_type='LINESTRINGM', srid=4326))
     def gps_points(self):
         gps_points = []
         for i in range(1,db.session.scalar(self.gps_line.ST_NPoints()) + 1):
@@ -131,6 +132,16 @@ class ObjectTrajactoryModel(db.Model):
             gps_point["lat"] =  db.session.scalar(self.gps_line.ST_PointN(i).ST_Y())
             gps_points.append(gps_point)
         return gps_points
+    def dictRepr(self,**kwargs):
+        d = {"id":self.lastappeared.id,"object_id":self.lastappeared.object_id,
+        "lastmodified_date":self.lastappeared.lastmodified_date.strftime("%Y-%m-%d"),"gps_points":self.gps_points()}
+        
+        if "similar" in kwargs:
+            d["similar"] = kwargs["similar"]
+        return d
+class ObjectTrajactoryModel(TrajectoryMixin,db.Model):
+    __tablename__ = 'objecttrajactory'
+        
     def precictTrajectory(self):
         predict_num = 5
         gps_points = self.gps_points()
@@ -149,14 +160,7 @@ class ObjectTrajactoryModel(db.Model):
         return {"object_id":self.lastappeared.object_id,"gps_points": [{"long":p[0],"lat":p[1]} for p in yhat]}
         
         
-    def dictRepr(self,**kwargs):
-
-        d = {"id":self.lastappeared.id,"object_id":self.lastappeared.object_id,
-        "lastmodified_date":self.lastappeared.lastmodified_date.strftime("%Y-%m-%d"),"gps_points":self.gps_points()}
-        
-        if "similar" in kwargs:
-            d["similar"] = kwargs["similar"]
-        return d
+    
 
 
 
