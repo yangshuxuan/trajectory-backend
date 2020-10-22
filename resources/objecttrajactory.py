@@ -28,6 +28,12 @@ class ObjectTrajactoryApi(Resource):
   def get(self,id):
     objectTrajactory = ObjectTrajactoryModel.query.filter_by(object_id=id).first()
     return objectTrajactory.dictRepr(),200
+  def delete(self, id):
+      objectTrajactory = ObjectTrajactoryModel.query.filter_by(object_id=id).first()
+      if objectTrajactory is not None:
+        db.session.delete(objectTrajactory)
+        db.session.commit()
+      return {'object_id':id}
 
 class ObjectTrajactoryPredictorApi(Resource):
   
@@ -48,6 +54,10 @@ class ObjectTrajactorysApi(Resource):
     db.session.add(objectTrajactory)
     db.session.commit()
     return {'object_id': objectTrajactory.object_id}, 200
+  def delete(self):
+    ObjectTrajactoryModel.query.delete()
+    db.session.commit()
+    return "succeed to delete", 200
 
 class SimilarObjectTrajactorysApi(Resource):
   from sqlalchemy import desc,asc
@@ -60,8 +70,9 @@ class SimilarObjectTrajactorysApi(Resource):
     args = parser.parse_args()
     similar_num = 10 if args['similar_num'] is None else args['similar_num']
     objectTrajactory = ObjectTrajactoryModel.query.filter_by(object_id=id).first()
-    rows = ObjectTrajactoryModel.query.filter(ObjectTrajactoryModel.object_id!=id).order_by(asc(func.ST_HausdorffDistance(ObjectTrajactoryModel.gps_line,func.ST_AsEWKT(objectTrajactory.gps_line)))).limit(similar_num).all()
-    return  [row.dictRepr() for row in rows]
+    rows = ObjectTrajactoryModel.query.filter(ObjectTrajactoryModel.object_id!=id).with_entities(ObjectTrajactoryModel,func.ST_HausdorffDistance(ObjectTrajactoryModel.gps_line,func.ST_AsEWKT(objectTrajactory.gps_line)).label('similar')).order_by(asc('similar')).limit(similar_num).all()
+    return  [o.dictRepr(similar=1.0/s) for o,s in rows]
+
 
 class ObjectTrajectoryLastNminutesApi(Resource):
   def get(self, minutes):
