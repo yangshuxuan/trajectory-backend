@@ -133,12 +133,12 @@ class TrajectoryMixin:
             gps_points.append(gps_point)
         return gps_points
     def dictRepr(self,**kwargs):
-        d = {"id":self.lastappeared.id,"object_id":self.lastappeared.object_id,
-        "lastmodified_date":self.lastappeared.lastmodified_date.strftime("%Y-%m-%d"),"gps_points":self.gps_points()}
+        d = {"id":self.lastappeared_id,"gps_points":self.gps_points()}
         
         if "similar" in kwargs:
             d["similar"] = kwargs["similar"]
         return d
+
 class ObjectTrajactoryModel(TrajectoryMixin,db.Model):
     __tablename__ = 'objecttrajactory'
         

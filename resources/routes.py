@@ -8,7 +8,7 @@ from .machinetype import MachinetypesApi,MachinetypeStatisticsApi
 from .exceptiontype import ExceptionTypesApi
 from .objecttrajactory import ObjectTrajactorysApi,ObjectTrajactoryApi,ObjectTrajactoryPredictorApi,SimilarObjectTrajactorysApi,ObjectTrajectoryLastNminutesApi
 from .exceptioninfo import ExceptionInfosApi
-from .trajectorypreprocess.filter import ObjectTrajactoryFilterApi
+from .trajectorypreprocess.trajectorypreprocess import ObjectTrajactoryFilterApi,ObjectTrajactorySegmentsApi
 def initialize_routes(api):
  
  
@@ -28,6 +28,8 @@ def initialize_routes(api):
     api.add_resource(ObjectTrajactorysApi,'/objecttrajactory')
     api.add_resource(ObjectTrajactoryApi,'/objecttrajactory/<id>')
     api.add_resource(ObjectTrajactoryFilterApi,'/objecttrajactoryafterfilter/<id>')
+    api.add_resource(ObjectTrajactorySegmentsApi,'/objecttrajactoryaftersegments/<int:id>')
+    
     api.add_resource(ObjectTrajactoryPredictorApi,'/objecttrajactorypredictor/<id>')
     api.add_resource(LastappearedsFilterApi,'/lastappearedfilter')
 
