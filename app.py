@@ -30,13 +30,13 @@ assert(dbPort)
 assert(dbUser)
 assert(dbPass)
 
-dbURL= "postgresql://" + dbUser + ":" + dbPass + "@" + dbAddr + ":" + dbPort + "/nyc"
+dbURL= "postgresql://" + dbUser + ":" + dbPass + "@" + dbAddr + ":" + dbPort + "/trajectory"
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("nyc", dbURL)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("trajectory", dbURL)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['SQLALCHEMY_BINDS'] = {
-    'nyc':        os.environ.get("nyc", dbURL)
+    'trajectory':        os.environ.get("trajectory", dbURL)
 }
 
 postsqldb.db.initialize_db(app)

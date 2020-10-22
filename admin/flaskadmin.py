@@ -10,9 +10,9 @@ class MyModelView(ModelView):
     column_display_pk=True
     create_modal = True
     edit_modal = True
-    form_columns = ('object_id', 'exceptiontype')
+    form_columns = ('lastappeared_id', 'exceptiontype')
     #column_editable_list = ('object_id', 'exceptiontype')
-    column_list = ('object_id', 'exceptiontype')
+    column_list = ('lastappeared_id', 'exceptiontype')
     # def __init__(self, model, session, name=None, category=None, endpoint=None, url=None, **kwargs):
     #     #kwargs["list_columns"]=['object_id', 'exceptiontype']
     #     for k, v in kwargs.items():

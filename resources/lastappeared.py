@@ -8,30 +8,38 @@ from flask_restful import Resource,  marshal_with
 from database.postsqldb.models import neighborhood_fields,neighborhood_area_fields
 from flask_restful import reqparse
 
-class LastappearedApi(Resource):
-  def put(self, id):
+class LastappearedApiByObjectID(Resource):
+  def put(self, object_id):
     body = request.get_json()
+    body["object_id"] = object_id
+    if "lastmodified_time" in body.keys() and type(body["lastmodified_time"]) is str:
+      lastmodified_date_time_str = body["lastmodified_time"]
+      lastmodified_date_time = datetime.strptime(lastmodified_date_time_str, "%Y-%m-%d %H:%M:%S")
+    else:
+      lastmodified_date_time = datetime.now()
 
-    lastappearedModel = LastappearedModel.query.filter_by(object_id=id).first()
+    lastappearedModel = LastappearedModel.query.filter_by(lastmodified_date = lastmodified_date_time.date(),object_id = object_id).first()
+    body["lastmodified_time"] = lastmodified_date_time.strftime("%Y-%m-%d %H:%M:%S")
+    
     if lastappearedModel is None:
-      body["object_id"] = id
+      
       lastappearedModel = LastappearedModel(**body)
       db.session.add(lastappearedModel)
     else:
       lastappearedModel.update(body)
 
     db.session.commit()
-    return {'object_id': lastappearedModel.object_id}
-
+    return {'id': lastappearedModel.id,'object_id': lastappearedModel.object_id}
+class LastappearedApi(Resource):
   def get(self,id):
-    lastappearedModel = LastappearedModel.query.filter_by(object_id=id).first()
+    lastappearedModel = LastappearedModel.query.get(id)
     return lastappearedModel.dictRepr(),200
   def delete(self, id):
-        lastappearedModel = LastappearedModel.query.filter_by(object_id=id).first()
+        lastappearedModel = LastappearedModel.query.get(id)
         if lastappearedModel is not None:
           db.session.delete(lastappearedModel)
           db.session.commit()
-        return {'object_id': id}
+        return {'id': id}
 
 class LastappearedsApi(Resource):
   
@@ -60,7 +68,7 @@ class LastappearedsApi(Resource):
     lastappearedPoint = LastappearedModel(**body)
     db.session.add(lastappearedPoint)
     db.session.commit()
-    return {'object_id': lastappearedPoint.object_id}, 200
+    return {'id': lastappearedPoint.id,'object_id': lastappearedPoint.object_id}, 200
   def delete(self):
     LastappearedModel.query.delete()
     db.session.commit()

@@ -53,38 +53,62 @@ class Geometries3Model(db.Model):
     geom = db.Column(Geometry(geometry_type='LINESTRINGM', srid=4326))
 
 class LastappearedModel(db.Model):
-    __bind_key__ = 'nyc'
     __tablename__ = 'lastappeared'
-    object_id = db.Column(db.String(50), primary_key=True)
-    lastmodified_time = db.Column(db.DateTime, nullable=False,default=datetime.utcnow)
-    gps_point = db.Column(Geometry(geometry_type='POINT', srid=4326))
-
-    exception_type = db.relationship('ExceptionTypeModel',uselist=False,  lazy=True)
-    machine_type = db.relationship('MachineTypeModel',uselist=False,  lazy=True)
+    def defaultDate():
+        return datetime.now().date()
+    def defaultTime():
+        return datetime.now().time()
+    id = db.Column(db.Integer, primary_key=True)
+    object_id = db.Column(db.String(50), nullable=False)
+    lastmodified_date = db.Column(db.Date, nullable=False,default=defaultDate)
+    lastmodified_time = db.Column(db.Time, nullable=False,default=defaultTime)
+    gps_point = db.Column(Geometry(geometry_type='POINTM', srid=4326),nullable=False)
+    exception_type = db.relationship('ExceptionTypeModel',uselist=False, backref='lastappeared', lazy=True,cascade="all, delete",passive_deletes=True)
+    machine_type = db.relationship('MachineTypeModel',uselist=False,  backref='lastappeared',lazy=True,cascade="all, delete",passive_deletes=True)
+    object_trajactory = db.relationship('ObjectTrajactoryModel',uselist=False,  backref='lastappeared',lazy=True,cascade="all, delete",passive_deletes=True)
+    __table_args__ = (db.UniqueConstraint('object_id', 'lastmodified_date'), )
     def __init__(self,**kwargs):
+        if "lastmodified_time" in kwargs.keys() and type(kwargs["lastmodified_time"]) is str:
+            lastmodified_date_time_str = kwargs["lastmodified_time"]
+            kwargs["lastmodified_date_time"] = datetime.strptime(lastmodified_date_time_str, "%Y-%m-%d %H:%M:%S")
+        else:
+            kwargs["lastmodified_date_time"] = datetime.now()
+        if "lastmodified_date" not in kwargs.keys() or type(kwargs["lastmodified_date"]) is str:
+            kwargs["lastmodified_date"] = kwargs["lastmodified_date_time"].date()
+        if "lastmodified_time" not in kwargs.keys() or type(kwargs["lastmodified_time"]) is str:
+            kwargs["lastmodified_time"] = kwargs["lastmodified_date_time"].time()
         if "lat" in kwargs.keys() and "long" in kwargs.keys() and "gps_point" not in kwargs.keys():
-            kwargs["gps_point"] = 'SRID=4326;POINT({} {})'.format(kwargs["long"],kwargs["lat"])
+            kwargs["gps_point"] = 'SRID=4326;POINTM({} {} {})'.format(kwargs["long"],kwargs["lat"],datetime.timestamp(kwargs["lastmodified_date_time"]))
             del kwargs["lat"]
             del kwargs["long"]
-        if "lastmodified_time" in kwargs.keys() and type(kwargs["lastmodified_time"]) is str:
-            lastmodified_time_str = kwargs["lastmodified_time"]
-            kwargs["lastmodified_time"] = datetime.strptime(lastmodified_time_str, "%Y-%m-%d %H:%M:%S")
+        del kwargs["lastmodified_date_time"]
+        
 
         super(LastappearedModel, self).__init__(**kwargs)
     def update(self,body):
-        if "lat" in body.keys() and "long" in body.keys():
-            self.gps_point = 'SRID=4326;POINT({} {})'.format(body["long"],body["lat"])
- 
         if "lastmodified_time" in body.keys() and type(body["lastmodified_time"]) is str:
-            lastmodified_time_str = body["lastmodified_time"]
-            self.lastmodified_time = datetime.strptime(lastmodified_time_str, "%Y-%m-%d %H:%M:%S")
+            lastmodified_date_time_str = body["lastmodified_time"]
+            lastmodified_date_time = datetime.strptime(lastmodified_date_time_str, "%Y-%m-%d %H:%M:%S")
+        else:
+            lastmodified_date_time = datetime.now()
+        self.lastmodified_date = lastmodified_date_time.date()
+        self.lastmodified_time = lastmodified_date_time.time()
+        if "lat" in body.keys() and "long" in body.keys():
+            self.gps_point = 'SRID=4326;POINTM({} {} {})'.format(body["long"],body["lat"],datetime.timestamp(lastmodified_date_time))
+        
+ 
+        
 
     def lat(self):
         return db.session.scalar(self.gps_point.ST_Y())
     def long(self):
         return db.session.scalar(self.gps_point.ST_X())
+    def M(self):
+        return db.session.scalar(self.gps_point.ST_M())
     def dictRepr(self):
-        info = {"object_id":self.object_id,"lastmodified_time":self.lastmodified_time.strftime("%Y-%m-%d %H:%M:%S"),"long":self.long(),"lat":self.lat()}
+        info = {"id":self.id,"object_id":self.object_id,
+        "lastmodified_date":self.lastmodified_date.strftime("%Y-%m-%d"),
+        "lastmodified_time":self.lastmodified_time.strftime("%H:%M:%S"),"long":self.long(),"lat":self.lat(),"M":self.M()}
         if self.exception_type is not None:
             info["exception_type"] = self.exception_type.exceptiontype
         if self.machine_type is not None:
@@ -94,19 +118,10 @@ class LastappearedModel(db.Model):
 
 class ObjectTrajactoryModel(db.Model):
     __tablename__ = 'objecttrajactory'
-    object_id = db.Column(db.String(50),primary_key=True)
+    lastappeared_id = db.Column(db.Integer,db.ForeignKey('lastappeared.id',ondelete="CASCADE"),primary_key=True)
     gps_line = db.Column(Geometry(geometry_type='LINESTRINGM', srid=4326))
-    #p = ObjectTrajactoryModel(object_id='Ortab', gps_line='SRID=4326;LINESTRINGM(0 0 20, 1 1 21, 2 1 22, 2 2 23)')
-    def __init__(self,**kwargs):
-        if "gps_points" in kwargs.keys() and "gps_line" not in kwargs.keys():
-            #timestamp = datetime.timestamp(now)
-            kwargs["gps_line"] = 'SRID=4326;LINESTRINGM({})'.format(",".join(["{} {} {}".format(
-                p["long"],p["lat"],datetime.timestamp(datetime.strptime(p["occurtime"], "%Y-%m-%d %H:%M:%S"))
-                ) for p in kwargs["gps_points"]]))
-            del kwargs["gps_points"]
+ 
 
-
-        super(ObjectTrajactoryModel, self).__init__(**kwargs)
     def gps_points(self):
         gps_points = []
         for i in range(1,db.session.scalar(self.gps_line.ST_NPoints()) + 1):
@@ -130,17 +145,15 @@ class ObjectTrajactoryModel(db.Model):
         model_fit = model.fit(disp=False)
 
         yhat = model_fit.forecast(predict_num)
-        return {"object_id":self.object_id,"gps_points": [{"long":p[0],"lat":p[1]} for p in yhat]}
         
-
-    def update(self,body):
+        return {"object_id":self.lastappeared.object_id,"gps_points": [{"long":p[0],"lat":p[1]} for p in yhat]}
         
-        for p in body["gps_points"]:
-            toAddPoint ='POINTM({} {} {})'.format(p["long"],p["lat"],datetime.timestamp(datetime.strptime(p["occurtime"], "%Y-%m-%d %H:%M:%S")))
-            self.gps_line = db.session.scalar(self.gps_line.ST_AddPoint(toAddPoint))
         
     def dictRepr(self,**kwargs):
-        d = {"object_id":self.object_id,"gps_points":self.gps_points()}
+
+        d = {"id":self.lastappeared.id,"object_id":self.lastappeared.object_id,
+        "lastmodified_date":self.lastappeared.lastmodified_date.strftime("%Y-%m-%d"),"gps_points":self.gps_points()}
+        
         if "similar" in kwargs:
             d["similar"] = kwargs["similar"]
         return d
@@ -170,15 +183,15 @@ class ObjectUseAirlineModel(db.Model):
 class MachineTypeModel(db.Model):
     __tablename__ = 'machinetype'
 
-    object_id = db.Column(db.String(50),db.ForeignKey('lastappeared.object_id'),primary_key=True)
+    lastappeared_id = db.Column(db.Integer,db.ForeignKey('lastappeared.id',ondelete="CASCADE"),primary_key=True)
     machinetype = db.Column(db.String())
     def dictRepr(self):
-        return {"object_id":self.object_id,"machinetype":self.machinetype}
+        return {"lastappeared_id":self.lastappeared_id,"machinetype":self.machinetype}
 
 
 class ExceptionTypeModel(db.Model):
     __tablename__ = 'exceptiontype'
-    object_id = db.Column(db.String(50),db.ForeignKey('lastappeared.object_id'),primary_key=True)
+    lastappeared_id = db.Column(db.Integer,db.ForeignKey('lastappeared.id',ondelete="CASCADE"),primary_key=True)
     exceptiontype = db.Column(db.String())
     def dictRepr(self):
-        return {"object_id":self.object_id,"exceptiontype":self.exceptiontype}
+        return {"lastappeared_id":self.lastappeared_id,"exceptiontype":self.exceptiontype}

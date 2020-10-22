@@ -2,7 +2,7 @@
 from .car import CarsApi,CarApi
 from .neighborhood import NeighborhoodApi,NeighborhoodsApi,NeighborhoodAreaApi
 from .geometries3 import Geometries3sApi
-from .lastappeared import LastappearedApi,LastappearedsApi,LastappearedsFilterApi
+from .lastappeared import LastappearedApi,LastappearedApiByObjectID,LastappearedsApi,LastappearedsFilterApi
 from .objecttrajactory import ObjectTrajactorysApi,ObjectTrajactoryApi,ObjectTrajactoryPredictorApi,SimilarObjectTrajactorysApi
 from .machinetype import MachinetypesApi,MachinetypeStatisticsApi
 from .exceptiontype import ExceptionTypesApi
@@ -22,6 +22,7 @@ def initialize_routes(api):
 
     api.add_resource(LastappearedsApi,'/lastappeared')
     api.add_resource(LastappearedApi, '/lastappeared/<id>')
+    api.add_resource(LastappearedApiByObjectID, '/lastappeared/<object_id>')
     api.add_resource(LastappearedApi, '/objectdetail/<id>',endpoint="transform_lastappearedapi_for_objectdetail")
     api.add_resource(ObjectTrajactorysApi,'/objecttrajactory')
     api.add_resource(ObjectTrajactoryApi,'/objecttrajactory/<id>')
